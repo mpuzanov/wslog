@@ -1,4 +1,4 @@
-module wslog
+module github.com/mpuzanov/wslog
 
 go 1.22.1
 
