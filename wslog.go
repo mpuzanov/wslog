@@ -18,6 +18,8 @@ const (
 	envProd  = "prod"
 )
 
+const fileNameLogDefault = "log.txt"
+
 type (
 	// Logger алиасы типов
 	Logger = slog.Logger
@@ -145,7 +147,9 @@ func newLogger() *Logger {
 		handler = slog.NewTextHandler(config.Writer, handlerOptions)
 	}
 
-	logger := slog.New(handler)
+	h := &ContextHandler{handler}
+	logger := slog.New(h)
+
 	if config.SetDefault {
 		slog.SetDefault(logger)
 	}
@@ -227,11 +231,11 @@ func NewEnv(env string) *Logger {
 
 		// добавим запись логов в файл
 		file := &lumberjack.Logger{
-			Filename:   "log.txt", // Имя файла
-			MaxSize:    10,        // Размер в МБ до ротации файла
-			MaxBackups: 5,         // Максимальное количество файлов, сохраненных до перезаписи
-			MaxAge:     30,        // Максимальное количество дней для хранения файлов
-			Compress:   true,      // Следует ли сжимать файлы логов с помощью gzip
+			Filename:   fileNameLogDefault, // Имя файла
+			MaxSize:    10,                 // Размер в МБ до ротации файла
+			MaxBackups: 5,                  // Максимальное количество файлов, сохраненных до перезаписи
+			MaxAge:     30,                 // Максимальное количество дней для хранения файлов
+			Compress:   true,               // Следует ли сжимать файлы логов с помощью gzip
 		}
 
 		config.Writer = io.MultiWriter(file, os.Stdout) //, os.Stderr
@@ -248,7 +252,7 @@ func NewEnv(env string) *Logger {
 
 // ErrAttr helper func
 //
-// logger.Error("user msg error", ErrAttr(err))
+// logger.Error("user msg error", wslog.ErrAttr(err))
 func ErrAttr(err error) Attr {
 	return slog.String("error", err.Error())
 }
