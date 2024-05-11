@@ -24,7 +24,6 @@ func (h ContextHandler) Handle(ctx context.Context, r slog.Record) error {
 			r.AddAttrs(v)
 		}
 	}
-
 	return h.Handler.Handle(ctx, r)
 }
 
@@ -35,9 +34,15 @@ func AppendCtx(parent context.Context, attr slog.Attr) context.Context {
 		parent = context.Background()
 	}
 
-	if v, ok := parent.Value(slogFields).([]slog.Attr); ok {
-		v = append(v, attr)
-		return context.WithValue(parent, slogFields, v)
+	if val, ok := parent.Value(slogFields).([]slog.Attr); ok {
+		for k, v := range val {
+			if v.Key == attr.Key {
+				val[k] = attr
+				return context.WithValue(parent, slogFields, val)
+			}
+		}
+		val = append(val, attr)
+		return context.WithValue(parent, slogFields, val)
 	}
 
 	v := []slog.Attr{}
