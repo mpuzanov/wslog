@@ -53,20 +53,21 @@ type LoggerOption func(options *options)
 var (
 	// SetDefault ...
 	SetDefault = slog.SetDefault
-	// StrAttr алиасы типов
-	StrAttr = slog.String
-	// BoolAttr ...
-	BoolAttr = slog.Bool
-	// Float64Attr ...
-	Float64Attr = slog.Float64
-	// AnyAttr ...
-	AnyAttr = slog.Any
-	// DurationAttr ...
-	DurationAttr = slog.Duration
-	// IntAttr ...
-	IntAttr = slog.Int
-	// Int64Attr ...
-	Int64Attr = slog.Int64
+
+	// String алиасы типов
+	String = slog.String
+	// Bool ...
+	Bool = slog.Bool
+	// Float64 ...
+	Float64 = slog.Float64
+	// Any ...
+	Any = slog.Any
+	// Duration ...
+	Duration = slog.Duration
+	// Int ...
+	Int = slog.Int
+	// Int64 ...
+	Int64 = slog.Int64
 
 	// GroupValue ...
 	GroupValue = slog.GroupValue
@@ -74,9 +75,8 @@ var (
 	Group = slog.Group
 )
 
-var (
+const (
 	defaultLevel      = slog.LevelInfo
-	defaultWriter     = os.Stdout
 	defaultSetDefault = true
 )
 
@@ -84,16 +84,23 @@ var (
 	handler        slog.Handler
 	handlerOptions *slog.HandlerOptions
 	config         options
+	// RemoveTime убрать time из логов
+	RemoveTime bool
 )
 
 var replaceAttr = func(groups []string, a slog.Attr) slog.Attr {
 	//fmt.Printf("replace: Key:%v, Value:%v,  type: %T\n", a.Key, a.Value, a.Value.Any())
+
 	if a.Key == slog.TimeKey {
+		if RemoveTime {
+			return slog.Attr{}
+		}
 		t, ok := a.Value.Any().(time.Time)
 		if ok {
 			a.Value = slog.StringValue(t.Format("2006-01-02 15:04:05.000"))
 		}
 	}
+
 	// Remove the directory from the source's filename.
 	if a.Key == slog.SourceKey {
 		source := a.Value.Any().(*slog.Source)
@@ -112,7 +119,7 @@ func New(opts ...LoggerOption) *Logger {
 
 	config = options{
 		Level:      defaultLevel,
-		Writer:     defaultWriter,
+		Writer:     os.Stdout,
 		SetDefault: defaultSetDefault,
 		AddSource:  false,
 	}
@@ -210,7 +217,7 @@ func NewEnv(env string) *Logger {
 
 	config = options{
 		Level:      defaultLevel,
-		Writer:     defaultWriter,
+		Writer:     os.Stdout,
 		SetDefault: defaultSetDefault,
 		IsJSON:     true,
 		AddSource:  true,

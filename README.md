@@ -30,12 +30,12 @@ or
 
 ```golang
 logger := wslog.NewEnv(cfg.Env)
-logger.Debug("debug", wslog.AnyAttr("cfg", cfg))
+logger.Debug("debug", wslog.Any("cfg", cfg))
 
 logger.Info(cfg.ServiceName,
-		wslog.StrAttr("version", config.Version),
-		wslog.StrAttr("time", config.Time),
-		wslog.StrAttr("log_level", cfg.Log.Level),
+		wslog.String("version", config.Version),
+		wslog.String("time", config.Time),
+		wslog.String("log_level", cfg.Log.Level),
 	)
 ```
 
