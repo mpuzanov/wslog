@@ -15,6 +15,7 @@
 *.zip
 *.xls
 *.xlsx
+*.txt
 config*.yml
 
 *.code-workspace
